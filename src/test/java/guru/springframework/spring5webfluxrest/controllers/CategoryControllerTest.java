@@ -51,7 +51,7 @@ public class CategoryControllerTest {
     }
 
     @Test
-    void testCreateCategory() throws Exception {
+    public void testCreateCategory() throws Exception {
         BDDMockito.given(categoryRepository.saveAll(any(Publisher.class)))
                 .willReturn(Flux.just(Category.builder().build()));
 
@@ -62,5 +62,19 @@ public class CategoryControllerTest {
                 .body(categoryMono, Category.class)
                 .exchange()
                 .expectStatus().isCreated();
+    }
+
+    @Test
+    public void testUpdateCategory() throws Exception {
+        BDDMockito.given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        Mono<Category> updateCategory = Mono.just(Category.builder().description("Some cat").build());
+
+        webTestClient.put()
+                .uri("/api/v1/categories/whatever")
+                .body(updateCategory, Category.class)
+                .exchange()
+                .expectStatus().isOk();
     }
 }
