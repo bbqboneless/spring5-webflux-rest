@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 public class CategoryControllerTest {
     WebTestClient webTestClient;
@@ -76,5 +77,24 @@ public class CategoryControllerTest {
                 .body(updateCategory, Category.class)
                 .exchange()
                 .expectStatus().isOk();
+    }
+
+    @Test
+    public void testPatchCategory() throws Exception {
+
+        BDDMockito.given(categoryRepository.findById(anyString()))
+                        .willReturn(Mono.just(Category.builder().build()));
+        BDDMockito.given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        Mono<Category> updateCategory = Mono.just(Category.builder().description("Some cat").build());
+
+        webTestClient.put()
+                .uri("/api/v1/categories/whatever")
+                .body(updateCategory, Category.class)
+                .exchange()
+                .expectStatus().isOk();
+
+        BDDMockito.verify(categoryRepository).save(any());
     }
 }
